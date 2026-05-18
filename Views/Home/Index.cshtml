@@ -1,0 +1,62 @@
+﻿@model IEnumerable<DeliveryShopApp.Models.Product>
+@{
+    ViewData["Title"] = "Каталог товарів";
+    var categories = ViewBag.Categories as List<DeliveryShopApp.Models.Category>;
+    var selectedCategory = ViewBag.SelectedCategory as int?;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <h4 style="color: var(--dark-text);">Категорії</h4>
+            <div class="list-group">
+                <a href="@Url.Action("Index", "Home")" 
+                   class="list-group-item list-group-item-action @(selectedCategory == null ? "active" : "")"
+                   style="@(selectedCategory == null ? "background-color: var(--primary-green); border-color: var(--primary-green);" : "")">
+                    Всі товари
+                </a>
+                @if (categories != null)
+                {
+                    @foreach (var cat in categories)
+                    {
+                        <a href="@Url.Action("Index", "Home", new { categoryId = cat.Id })" 
+                           class="list-group-item list-group-item-action @(selectedCategory == cat.Id ? "active" : "")"
+                           style="@(selectedCategory == cat.Id ? "background-color: var(--primary-green); border-color: var(--primary-green);" : "")">
+                            @cat.Name
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <h2 style="color: var(--dark-text); font-weight: bold;">Наше Меню</h2>
+            
+            <div class="product-grid">
+                @foreach (var product in Model)
+                {
+                    <div class="product-card">
+                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/no-image.png" : product.ImageUrl)" class="product-image" alt="@product.Name" />
+                        <h5 style="font-weight: 600;">@product.Name</h5>
+                        <p class="text-muted" style="font-size: 0.9rem; height: 40px; overflow: hidden;">@product.Description</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span style="font-weight: bold; color: var(--primary-green); font-size: 1.2rem;">
+                                @product.Price грн / @product.Unit?.Name
+                            </span>
+                            
+                            @if (product.IsAvailable && product.StockQuantity > 0)
+                            {
+                                <button class="btn btn-delivery">В кошик</button>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Немає в наявності</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
