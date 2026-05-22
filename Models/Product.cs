@@ -22,4 +22,6 @@ public class Product
     public ICollection<Cart> Carts { get; set; } = new List<Cart>();
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+    public double AverageRating => Reviews.Any() ? Reviews.Average(r => r.Rating) : 0;
 }

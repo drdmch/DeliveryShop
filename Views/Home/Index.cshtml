@@ -58,12 +58,41 @@
             @foreach (var product in Model)
             {
                 <div class="product-card">
-                    <a asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none text-dark d-block mb-3">
+                    <a asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none text-dark d-block mb-2">
                         <div class="position-relative overflow-hidden rounded-4 mb-3">
                             <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://placehold.co/500x350?text=No+Image" : product.ImageUrl)" class="product-image w-100" alt="@product.Name" style="height: 180px; object-fit: cover; border-radius: 12px;" />
                         </div>
                         <h5 style="font-weight: 600; font-size: 1.05rem; min-height: 44px; margin-bottom: 5px;">@product.Name</h5>
                     </a>
+
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="text-warning small">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (product.Reviews != null && product.Reviews.Any() && i <= Math.Round(product.AverageRating))
+                                    {
+                                        <i class="bi bi-star-fill"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-star text-muted opacity-50"></i>
+                                    }
+                                }
+                            </div>
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: 600;">
+                                @if (product.Reviews != null && product.Reviews.Any())
+                                {
+                                    @:@product.AverageRating.ToString("F1") (@product.Reviews.Count)
+                                }
+                                else
+                                {
+                                    @:0.0 (0)
+                                }
+                            </span>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between align-items-center mt-auto">
                         <span style="font-weight: 700; color: var(--primary-green); font-size: 1.15rem;">
                             @product.Price грн / @product.Unit?.Name

@@ -1,0 +1,126 @@
+@model IEnumerable<DeliveryShopApp.Models.Order>
+@{
+    ViewData["Title"] = "Результати пошуку замовлень";
+    var searchKey = ViewBag.SearchKey as string;
+    var reviewedProductIds = ViewBag.LeftReviewProductIds as List<int> ?? new List<int>();
+}
+
+<div class="container mt-4" style="max-width: 850px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 style="font-weight: 800;"><i class="bi bi-journal-text me-2" style="color: var(--primary-green);"></i> Замовлення для @searchKey</h3>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">Змінити дані</a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5 bg-white border rounded-4 shadow-sm">
+            <i class="bi bi-emoji-neutral text-muted" style="font-size: 3rem;"></i>
+            <h5 class="text-muted mt-3">Замовлень не знайдено</h5>
+            <p class="text-muted small">Перевірте правильність введення телефону або Email.</p>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-4">
+            @foreach (var order in Model)
+            {
+                <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden" style="border: 1px solid rgba(46,125,50,0.05) !important;">
+                    <div class="card-header bg-light border-0 p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <span class="text-muted small">Замовлення</span> 
+                            <strong style="color: var(--primary-green);">#@order.Id</strong>
+                            <span class="text-muted small ms-2">від @order.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                        </div>
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-2 px-2 py-1.5" style="font-size: 0.85rem;">
+                            @order.CurrentStatus?.Name
+                        </span>
+                    </div>
+
+                    <div class="card-body p-3">
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle m-0">
+                                <thead class="table-light" style="font-size: 0.85rem; text-uppercase: true;">
+                                    <tr>
+                                        <th>Товар</th>
+                                        <th class="text-center">Кількість</th>
+                                        <th class="text-end">Ціна</th>
+                                        <th class="text-center" style="width: 180px;">Дія</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in order.OrderItems)
+                                    {
+                                        <tr class="border-bottom">
+                                            <td>
+                                                <span class="fw-bold">@item.ProductName</span>
+                                            </td>
+                                            <td class="text-center">@item.Quantity.ToString("G29") @item.UnitName</td>
+                                            <td class="text-end fw-bold" style="color: var(--primary-green);">@((item.Quantity * item.PriceAtPurchase).ToString("F2")) грн</td>
+                                            <td class="text-center">
+                                                @if (item.ProductId.HasValue && reviewedProductIds.Contains(item.ProductId.Value))
+                                                {
+                                                    <span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Відгук залишено</span>
+                                                }
+                                                else if (!item.ProductId.HasValue)
+                                                {
+                                                    <span class="text-muted small">Товар видалено з каталогу</span>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-outline-success px-3" data-bs-toggle="modal" data-bs-target="#reviewModal-@order.Id-@item.ProductId" style="border-radius: 6px; font-size: 0.8rem;">
+                                                        Залишити відгук
+                                                    </button>
+
+                                                    <div class="modal fade" id="reviewModal-@order.Id-@item.ProductId" tabindex="-1" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content border-0 rounded-4 shadow">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="fw-bold m-0">Відгук про @item.ProductName</h5>
+                                                                    <button type="button" class="btn-close" data-bs-close="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <form asp-action="LeaveOrderReview" method="post">
+                                                                    <div class="modal-body text-start">
+                                                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                                                        <input type="hidden" name="orderId" value="@order.Id" />
+                                                                        <input type="hidden" name="searchKey" value="@searchKey" />
+                                                                        
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label small fw-bold">Оцінка товару</label>
+                                                                            <div class="star-rating-form">
+                                                                                <input type="radio" id="star5-@order.Id-@item.ProductId" name="rating" value="5" required /><label for="star5-@order.Id-@item.ProductId" class="bi bi-star-fill"></label>
+                                                                                <input type="radio" id="star4-@order.Id-@item.ProductId" name="rating" value="4" /><label for="star4-@order.Id-@item.ProductId" class="bi bi-star-fill"></label>
+                                                                                <input type="radio" id="star3-@order.Id-@item.ProductId" name="rating" value="3" /><label for="star3-@order.Id-@item.ProductId" class="bi bi-star-fill"></label>
+                                                                                <input type="radio" id="star2-@order.Id-@item.ProductId" name="rating" value="2" /><label for="star2-@order.Id-@item.ProductId" class="bi bi-star-fill"></label>
+                                                                                <input type="radio" id="star1-@order.Id-@item.ProductId" name="rating" value="1" /><label for="star1-@order.Id-@item.ProductId" class="bi bi-star-fill"></label>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-2">
+                                                                            <label class="form-label small fw-bold">Ваш відгук</label>
+                                                                            <textarea name="comment" class="form-control" rows="3" placeholder="Поділіться вашими враженнями про якість свіжого продукту..." style="border-radius: 8px;" required></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer border-0 pt-0">
+                                                                        <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal" style="border-radius: 6px;">Скасувати</button>
+                                                                        <button type="submit" class="btn btn-sm btn-success px-4" style="background-color: var(--primary-green); border: none; border-radius: 6px;">Надіслати</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+                            <span class="text-muted small">Адреса доставки: @order.DeliveryAddress</span>
+                            <span class="fw-bold" style="font-size: 1.1rem;">Загалом: <span style="color: var(--primary-green);">@order.TotalPrice.ToString("F2") грн</span></span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -21,7 +21,10 @@ public class HomeController : Controller
         ViewBag.SelectedCategory = categoryId;
         ViewBag.SearchString = searchString;
 
-        var productsQuery = _context.Products.Include(p => p.Unit).AsQueryable();
+        var productsQuery = _context.Products
+            .Include(p => p.Unit)
+            .Include(p => p.Reviews)
+            .AsQueryable();
 
         if (categoryId.HasValue)
         {
@@ -59,23 +62,5 @@ public class HomeController : Controller
 
         ViewBag.AverageRating = product.Reviews.Any() ? product.Reviews.Average(r => r.Rating) : 0;
         return View(product);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> AddReview(int productId, string authorName, string comment, int rating)
-    {
-        var review = new Review
-            {
-                ProductId = productId,
-                AuthorName = string.IsNullOrEmpty(authorName) ? "Анонім" : authorName,
-                Comment = comment,
-                Rating = rating < 1 ? 1 : (rating > 5 ? 5 : rating),
-                CreatedAt = DateTime.UtcNow
-            };
-
-        _context.Reviews.Add(review);
-        await _context.SaveChangesAsync();
-
-        return RedirectToAction("Details", new { id = productId });
     }
 }

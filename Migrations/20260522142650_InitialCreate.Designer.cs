@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeliveryShopApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20260522102157_RecreateReviewsTable")]
-    partial class RecreateReviewsTable
+    [Migration("20260522142650_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -305,7 +305,7 @@ namespace DeliveryShopApp.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -520,8 +520,7 @@ namespace DeliveryShopApp.Migrations
                     b.HasOne("DeliveryShopApp.Models.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Order");
 

@@ -26,7 +26,7 @@
                 @if (avgRating > 0)
                 {
                     <div class="rating-stars d-flex align-items-center bg-light px-2 py-1 rounded-2" style="font-size: 0.85rem;">
-                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
                         <span class="ms-1 fw-bold">@avgRating.ToString("F1")</span>
                         <span class="text-muted ms-1">(@Model.Reviews.Count)</span>
                     </div>
@@ -61,7 +61,7 @@
                     <form asp-controller="Cart" asp-action="AddToCart" method="post" class="row g-2 align-items-center">
                         <input type="hidden" name="productId" value="@Model.Id" />
                         <div class="col-4">
-                            <input type="number" name="quantity" class="form-control text-center py-2" value="1" min="0.1" step="@(Model.Unit?.Name == "кг" ? "0.1" : "1")" style="font-weight: 600; border-radius: 8px;" />
+                            <input type="number" name="quantity" class="form-control text-center py-2" value="1" min="1" step="@(Model.Unit?.Name == "кг" ? "0.1" : "1")" onkeypress="@(Model.Unit?.Name == "шт" ? "return event.charCode >= 48 && event.charCode <= 57" : "")" style="font-weight: 600; border-radius: 8px;" />
                         </div>
                         <div class="col-8">
                             <button type="submit" class="btn btn-success w-100 py-2" style="background-color: var(--primary-green); border: none; font-weight: 600; border-radius: 8px;">
@@ -75,7 +75,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-7">
+        <div class="col-md-6">
             <h4 class="mb-4" style="font-weight: 700;"><i class="bi bi-chat-left-text me-2" style="color: var(--primary-green);"></i>Відгуки покупців (@Model.Reviews.Count)</h4>
             
             @if (!Model.Reviews.Any())
@@ -89,10 +89,10 @@
                     {
                         <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong style="font-size: 0.95rem;">@review.User?.FirstName</strong>
+                                <strong style="font-size: 0.95rem;">@review.AuthorName</strong>
                                 <span class="text-muted" style="font-size: 0.75rem;">@review.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")</span>
                             </div>
-                            <div class="rating-stars mb-2" style="font-size: 0.8rem;">
+                            <div class="rating-stars mb-2" style="font-size: 0.8rem; color: #ffc107;">
                                 @for (int i = 1; i <= 5; i++)
                                 {
                                     <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")"></i>
@@ -103,40 +103,6 @@
                     }
                 </div>
             }
-        </div>
-
-        <div class="col-md-5">
-            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white position-sticky" style="top: 20px;">
-                <h5 class="mb-3" style="font-weight: 700;">Залишити відгук</h5>
-                <form asp-action="AddReview" method="post">
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    
-                    <div class="mb-3">
-                        <label class="form-label" style="font-size: 0.85rem; font-weight: 500;">Ваше ім'я</label>
-                        <input type="text" name="authorName" class="form-control form-control-sm" placeholder="Як до вас звертатися?" style="border-radius: 8px;" required />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label d-block" style="font-size: 0.85rem; font-weight: 500;">Ваша оцінка</label>
-                        <div class="star-rating-form">
-                            <input type="radio" id="star5" name="rating" value="5" required /><label for="star5" class="bi bi-star-fill"></label>
-                            <input type="radio" id="star4" name="rating" value="4" /><label for="star4" class="bi bi-star-fill"></label>
-                            <input type="radio" id="star3" name="rating" value="3" /><label for="star3" class="bi bi-star-fill"></label>
-                            <input type="radio" id="star2" name="rating" value="2" /><label for="star2" class="bi bi-star-fill"></label>
-                            <input type="radio" id="star1" name="rating" value="1" /><label for="star1" class="bi bi-star-fill"></label>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" style="font-size: 0.85rem; font-weight: 500;">Коментар</label>
-                        <textarea name="comment" class="form-control form-control-sm" rows="3" placeholder="Поділіться враженнями від продукту..." style="border-radius: 8px;" required></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-success btn-sm w-100 py-2" style="background-color: var(--primary-green); border: none; font-weight: 600; border-radius: 8px;">
-                        Надіслати відгук
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 </div>

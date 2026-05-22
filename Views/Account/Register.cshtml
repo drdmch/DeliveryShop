@@ -1,0 +1,65 @@
+@{
+    ViewData["Title"] = "Реєстрація профілю";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold m-0" style="color: var(--dark-text);"><i class="bi bi-person-plus me-2" style="color: var(--primary-green);"></i>Реєстрація</h2>
+                    <p class="text-muted small mt-1">Створіть свій особистий профіль для замовлень</p>
+                </div>
+                
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3 fw-bold"></div>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Ім'я</label>
+                            <input type="text" name="firstName" class="form-control bg-light py-2" placeholder="Іван" style="border-radius: 10px;" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Прізвище</label>
+                            <input type="text" name="lastName" class="form-control bg-light py-2" placeholder="Іванов" style="border-radius: 10px;" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Номер телефону</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;"><i class="bi bi-telephone text-muted"></i></span>
+                            <input type="tel" name="phone" class="form-control bg-light border-start-0 py-2" placeholder="+380123456789" style="border-radius: 0 10px 10px 0;" required />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Email адреса</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;"><i class="bi bi-envelope text-muted"></i></span>
+                            <input type="email" name="email" class="form-control bg-light border-start-0 py-2" placeholder="ivan@mail.com" style="border-radius: 0 10px 10px 0;" required />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-secondary">Пароль</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;"><i class="bi bi-lock text-muted"></i></span>
+                            <input type="password" name="password" class="form-control bg-light border-start-0 py-2" placeholder="Створіть надійний пароль" style="border-radius: 0 10px 10px 0;" required />
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100 py-2 shadow-sm fw-bold mb-3" style="background-color: var(--primary-green); border: none; border-radius: 10px;">
+                        Зареєструватися
+                    </button>
+
+                    <div class="text-center">
+                        <span class="text-muted small">Вже є профіль?</span>
+                        <a asp-action="Login" class="small fw-bold text-decoration-none ms-1" style="color: var(--primary-green);">Увійти</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

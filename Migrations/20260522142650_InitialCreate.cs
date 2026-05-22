@@ -168,7 +168,7 @@ namespace DeliveryShopApp.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: true),
                     SessionId = table.Column<string>(type: "text", nullable: true),
                     ProductId = table.Column<int>(type: "integer", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<decimal>(type: "numeric", nullable: false),
                     AddedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -200,7 +200,7 @@ namespace DeliveryShopApp.Migrations
                     ProductId = table.Column<int>(type: "integer", nullable: true),
                     ProductName = table.Column<string>(type: "text", nullable: false),
                     UnitName = table.Column<string>(type: "text", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<decimal>(type: "numeric", nullable: false),
                     PriceAtPurchase = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
@@ -262,9 +262,10 @@ namespace DeliveryShopApp.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: true),
                     ProductId = table.Column<int>(type: "integer", nullable: false),
                     OrderId = table.Column<int>(type: "integer", nullable: true),
+                    AuthorName = table.Column<string>(type: "text", nullable: false),
                     Rating = table.Column<int>(type: "integer", nullable: false),
                     Comment = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

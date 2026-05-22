@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using DeliveryShopApp.Data;
 using DeliveryShopApp.Models;
 
@@ -28,12 +29,16 @@ public class CartController : Controller
         }
 
         var newSessionId = Guid.NewGuid().ToString();
-        context.Response.Cookies.Append(cookieKey, newSessionId, new CookieOptions
+
+        if (!context.Response.HasStarted)
         {
-            Expires = DateTimeOffset.UtcNow.AddDays(7),
-            HttpOnly = true,
-            IsEssential = true
-        });
+            context.Response.Cookies.Append(cookieKey, newSessionId, new CookieOptions
+            {
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                HttpOnly = true,
+                IsEssential = true
+            });
+        }
 
         return newSessionId;
     }
@@ -131,6 +136,7 @@ public class CartController : Controller
         return RedirectToAction("Index");
     }
 
+    [HttpGet]
     public async Task<IActionResult> Checkout()
     {
         var sessionId = GetOrCreateSessionId();
@@ -139,12 +145,24 @@ public class CartController : Controller
             .Where(c => c.SessionId == sessionId)
             .ToListAsync();
 
-        if (!cartItems.Any())
+        ViewBag.TotalSum = cartItems.Sum(item => item.Quantity * item.Product.Price);
+
+        if (User.Identity != null && User.Identity.IsAuthenticated)
         {
-            return RedirectToAction("Index");
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("UserId")?.Value;
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    ViewBag.UserFirstName = user.FirstName;
+                    ViewBag.UserLastName = user.LastName;
+                    ViewBag.UserPhone = user.Phone;
+                    ViewBag.UserEmail = user.Email;
+                }
+            }
         }
 
-        ViewBag.TotalSum = cartItems.Sum(item => item.Quantity * item.Product.Price);
         return View();
     }
 
@@ -152,6 +170,12 @@ public class CartController : Controller
     public async Task<IActionResult> SubmitOrder(string firstName, string lastName, string phone, string email, string address, string comment)
     {
         var sessionId = GetOrCreateSessionId();
+
+        if (string.IsNullOrEmpty(sessionId))
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
         var cartItems = await _context.Carts
             .Include(c => c.Product)
             .ThenInclude(p => p.Unit)
@@ -163,30 +187,35 @@ public class CartController : Controller
             return RedirectToAction("Index", "Home");
         }
 
-        var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Client");
-        if (defaultRole == null)
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email || u.Phone == phone);
+
+        if (user == null)
         {
-            defaultRole = new Role { Name = "Client" };
-            _context.Roles.Add(defaultRole);
+            var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Client");
+            if (defaultRole == null)
+            {
+                defaultRole = new Role { Name = "Client" };
+                _context.Roles.Add(defaultRole);
+                await _context.SaveChangesAsync();
+            }
+
+            user = new User
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Phone = phone,
+                Email = email,
+                PasswordHash = Guid.NewGuid().ToString(),
+                RoleId = defaultRole.Id
+            };
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
 
-        var user = new User
-        {
-            FirstName = firstName,
-            LastName = lastName,
-            Phone = phone,
-            Email = email,
-            PasswordHash = Guid.NewGuid().ToString(),
-            RoleId = defaultRole.Id
-        };
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var defaultStatus = await _context.OrderStatuses.FirstOrDefaultAsync(s => s.Id == 1);
+        var defaultStatus = await _context.OrderStatuses.FirstOrDefaultAsync(s => s.Id == 1 || s.Name == "Нове");
         if (defaultStatus == null)
         {
-            defaultStatus = new OrderStatus { Id = 1, Name = "Нове", SortOrder = 10 };
+            defaultStatus = new OrderStatus { Name = "Нове", SortOrder = 10 };
             _context.OrderStatuses.Add(defaultStatus);
             await _context.SaveChangesAsync();
         }

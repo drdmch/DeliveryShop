@@ -1,0 +1,65 @@
+@model IEnumerable<DeliveryShopApp.Models.Product>
+@{
+    ViewData["Title"] = "Керування каталогом";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-box-seam text-success me-2"></i> Керування каталогом</h2>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary me-2" style="border-radius: 8px;">Назад до замовлень</a>
+            <a asp-action="CreateProduct" class="btn btn-success" style="background-color: var(--primary-green); border: none; border-radius: 8px;"><i class="bi bi-plus-lg me-1"></i> Додати товар</a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Фото</th>
+                        <th>Назва товару</th>
+                        <th>Категорія</th>
+                        <th style="width: 180px;">Ціна (грн)</th>
+                        <th style="width: 140px;">Склад</th>
+                        <th class="text-center">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://placehold.co/50x50?text=No" : product.ImageUrl)" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;" />
+                            </td>
+                            <td class="fw-bold">@product.Name</td>
+                            <td><span class="badge bg-light text-dark">@product.Category?.Name</span></td>
+                            
+                            <td colspan="2">
+                                <form asp-action="UpdateProductValues" method="post" class="d-flex align-items-center gap-2 m-0">
+                                    <input type="hidden" name="id" value="@product.Id" />
+                                    
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" name="price" class="form-control text-end fw-bold text-success" value="@product.Price.ToString("F2")" step="0.01" min="0" required />
+                                        <span class="input-group-text bg-light" style="font-size: 0.75rem;">/@product.Unit?.Name</span>
+                                    </div>
+
+                                    <input type="number" name="stockQuantity" class="form-control form-control-sm text-center" value="@product.StockQuantity" min="0" style="width: 70px;" required />
+                                    
+                                    <button type="submit" class="btn btn-sm btn-success" style="border-radius: 6px;"><i class="bi bi-check-lg"></i></button>
+                                </form>
+                            </td>
+
+                            <td class="text-center">
+                                <form asp-action="DeleteProduct" method="post" onsubmit="return confirm('Ви впевнені, що хочете видалити цей товар?');" class="m-0">
+                                    <input type="hidden" name="id" value="@product.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 6px;"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
