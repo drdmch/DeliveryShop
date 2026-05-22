@@ -53,3 +53,53 @@ body {
     background-color: var(--accent-green);
     color: white;
 }
+
+.product-card a:hover h5 {
+    color: var(--primary-green);
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(46, 125, 50, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.product-card:hover {
+    box-shadow: 0 12px 24px rgba(46, 125, 50, 0.12);
+    border-color: rgba(46, 125, 50, 0.3);
+}
+
+.rating-stars i {
+    color: #ffc107;
+    margin-right: 2px;
+}
+
+.star-rating-form {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.star-rating-form input {
+    display: none;
+}
+
+.star-rating-form label {
+    font-size: 1.5rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.15s ease-in-out;
+}
+
+.star-rating-form input:checked ~ label,
+.star-rating-form label:hover,
+.star-rating-form label:hover ~ label {
+    color: #ffc107;
+}

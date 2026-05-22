@@ -19,7 +19,7 @@ public static class DbInitializer
         {
             context.Categories.AddRange(
                 new Category { Name = "Овочі та фрукти" },
-                new Category { Name = "М'ясо, птиця та ковбаси" },
+                new Category { Name = "М'ясо, птиця" },
                 new Category { Name = "Риба та морепродукти" },
                 new Category { Name = "Яйця та молочні продукти" },
                 new Category { Name = "Пекарня та хліб" },
@@ -27,8 +27,8 @@ public static class DbInitializer
                 new Category { Name = "Соуси та спеції" },
                 new Category { Name = "Консерви та паштети" },
                 new Category { Name = "Солодощі та десерти" },
-                new Category { Name = "Чіпси, сухарики та снеки" },
-                new Category { Name = "Гарячі напої (чай, кава)" },
+                new Category { Name = "Cнеки" },
+                new Category { Name = "Гарячі напої" },
                 new Category { Name = "Соки та безалкогольні напої" },
                 new Category { Name = "Заморожені продукти" }
             );

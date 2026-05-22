@@ -1,0 +1,16 @@
+@model int
+@{
+    ViewData["Title"] = "Замовлення оформлено";
+}
+
+<div class="container mt-5 text-center" style="max-width: 500px;">
+    <div class="card shadow-sm border-0 rounded-4 p-5 bg-white">
+        <i class="bi bi-check-circle-fill" style="font-size: 4.5rem; color: var(--accent-green);"></i>
+        <h2 class="mt-4" style="color: var(--dark-text); font-weight: bold;">Дякуємо за замовлення!</h2>
+        <p class="text-muted mt-2">Замовлення №@Model успішно сформовано та надіслано адміністратору для обробки.</p>
+        
+        <a asp-controller="Home" asp-action="Index" class="btn btn-success w-100 py-2 mt-4 rounded-3" style="background-color: var(--primary-green); border: none; font-weight: 600;">
+            Повернутися до магазину
+        </a>
+    </div>
+</div>

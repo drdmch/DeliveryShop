@@ -3,60 +3,87 @@
     ViewData["Title"] = "Каталог товарів";
     var categories = ViewBag.Categories as List<DeliveryShopApp.Models.Category>;
     var selectedCategory = ViewBag.SelectedCategory as int?;
+    var currentCategoryName = ViewBag.CategoryName as string;
 }
 
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-3">
-            <h4 style="color: var(--dark-text);">Категорії</h4>
-            <div class="list-group">
-                <a href="@Url.Action("Index", "Home")" 
-                   class="list-group-item list-group-item-action @(selectedCategory == null ? "active" : "")"
-                   style="@(selectedCategory == null ? "background-color: var(--primary-green); border-color: var(--primary-green);" : "")">
-                    Всі товари
-                </a>
-                @if (categories != null)
-                {
-                    @foreach (var cat in categories)
-                    {
-                        <a href="@Url.Action("Index", "Home", new { categoryId = cat.Id })" 
-                           class="list-group-item list-group-item-action @(selectedCategory == cat.Id ? "active" : "")"
-                           style="@(selectedCategory == cat.Id ? "background-color: var(--primary-green); border-color: var(--primary-green);" : "")">
-                            @cat.Name
-                        </a>
-                    }
-                }
+    <div class="card p-3 border-0 rounded-4 shadow-sm mb-4 bg-white">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="dropdown w-100">
+                    <button class="btn btn-success dropdown-toggle w-100 py-2" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--primary-green); border: none; font-weight: 500; border-radius: 10px;">
+                        <i class="bi bi-grid me-2"></i> Категорії
+                    </button>
+                    <ul class="dropdown-menu shadow-sm w-100" aria-labelledby="categoriesDropdown" style="max-height: 350px; overflow-y: auto; border-radius: 10px;">
+                        <li><a class="dropdown-item @(selectedCategory == null ? "active-green" : "")" href="@Url.Action("Index", "Home")">Всі товари</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        @if (categories != null)
+                        {
+                            @foreach (var cat in categories)
+                            {
+                                <li><a class="dropdown-item @(selectedCategory == cat.Id ? "active-green" : "")" href="@Url.Action("Index", "Home", new { categoryId = cat.Id })">@cat.Name</a></li>
+                            }
+                        }
+                    </ul>
+                </div>
             </div>
-        </div>
-
-        <div class="col-md-9">
-            <h2 style="color: var(--dark-text); font-weight: bold;">Наше Меню</h2>
-            
-            <div class="product-grid">
-                @foreach (var product in Model)
-                {
-                    <div class="product-card">
-                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/no-image.png" : product.ImageUrl)" class="product-image" alt="@product.Name" />
-                        <h5 style="font-weight: 600;">@product.Name</h5>
-                        <p class="text-muted" style="font-size: 0.9rem; height: 40px; overflow: hidden;">@product.Description</p>
-                        
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span style="font-weight: bold; color: var(--primary-green); font-size: 1.2rem;">
-                                @product.Price грн / @product.Unit?.Name
-                            </span>
-                            
-                            @if (product.IsAvailable && product.StockQuantity > 0)
-                            {
-                                <button class="btn btn-delivery">В кошик</button>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Немає в наявності</span>
-                            }
-                        </div>
-                    </div>
-                }
+            <div class="col-md-9">
+                <form method="get" action="@Url.Action("Index", "Home")" class="input-group">
+                    @if (selectedCategory.HasValue)
+                    {
+                        <input type="hidden" name="categoryId" value="@selectedCategory.Value" />
+                    }
+                    <input type="text" name="searchString" class="form-control py-2 px-3 border-end-0" placeholder="Знайдіть свіжі продукти..." value="@ViewBag.SearchString" style="border-radius: 10px 0 0 10px; border-color: #e0e0e0;" />
+                    <button class="btn btn-outline-success px-4" type="submit" style="border-radius: 0 10px 10px 0; border-color: #e0e0e0; color: var(--primary-green);">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
             </div>
         </div>
     </div>
+
+    <h3 class="mb-4" style="color: var(--dark-text); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.5px;">@currentCategoryName</h3>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+            <h4 class="text-muted mt-3">Нічого не знайдено</h4>
+            <p class="text-muted">Спробуйте змінити параметри пошуку.</p>
+        </div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var product in Model)
+            {
+                <div class="product-card">
+                    <a asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none text-dark d-block mb-3">
+                        <div class="position-relative overflow-hidden rounded-4 mb-3">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://placehold.co/500x350?text=No+Image" : product.ImageUrl)" class="product-image w-100" alt="@product.Name" style="height: 180px; object-fit: cover; border-radius: 12px;" />
+                        </div>
+                        <h5 style="font-weight: 600; font-size: 1.05rem; min-height: 44px; margin-bottom: 5px;">@product.Name</h5>
+                    </a>
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                        <span style="font-weight: 700; color: var(--primary-green); font-size: 1.15rem;">
+                            @product.Price грн / @product.Unit?.Name
+                        </span>
+                        @if (product.IsAvailable && product.StockQuantity > 0)
+                        {
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="m-0">
+                                <input type="hidden" name="productId" value="@product.Id" />
+                                <button type="submit" class="btn btn-delivery px-3 py-2 d-flex align-items-center gap-1" style="border-radius: 8px; font-weight: 500; font-size: 0.9rem;">
+                                    <i class="bi bi-cart-plus"></i> купити
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-2 px-2 py-2" style="font-size: 0.75rem; font-weight: 600;">Архів</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>

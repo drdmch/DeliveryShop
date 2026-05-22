@@ -15,7 +15,7 @@ public class OrderItem
     public string ProductName { get; set; } = null!;
     public string UnitName { get; set; } = null!;
     
-    public int Quantity { get; set; }
+    public decimal Quantity { get; set; }
     public decimal PriceAtPurchase { get; set; }
 
     public decimal TotalPrice => Quantity * PriceAtPurchase;

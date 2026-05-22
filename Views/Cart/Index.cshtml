@@ -1,0 +1,96 @@
+@model IEnumerable<DeliveryShopApp.Models.Cart>
+@{
+    ViewData["Title"] = "Ваш кошик";
+    decimal totalSum = Model?.Sum(item => item.Quantity * item.Product.Price) ?? 0;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4" style="color: var(--dark-text); font-weight: bold;"><i class="bi bi-cart3 me-2"></i> Мій Кошик</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5 shadow-sm rounded bg-white border">
+            <i class="bi bi-basket text-muted" style="font-size: 4rem; color: #a1c1a1 !important;"></i>
+            <h4 class="text-muted mt-3">Ваш кошик порожній</h4>
+            <p class="text-muted">Перейдіть до каталогу, щоб вибрати свіжі продукти.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-success px-4 mt-2" style="background-color: var(--primary-green); border: none;">Повернутись до покупок</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-4 p-3 bg-white mb-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="d-flex align-items-center justify-content-between border-bottom py-3 flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="@item.Product.ImageUrl" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px;" alt="@item.Product.Name" />
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 600;">@item.Product.Name</h5>
+                                    <small class="text-muted">@item.Product.Price грн / @item.Product.Unit?.Name</small>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center gap-4">
+                                @if (item.Product.Unit?.Name == "кг")
+                                {
+                                    <form asp-action="SetQuantity" method="post" class="d-flex align-items-center gap-2 m-0">
+                                        <input type="hidden" name="cartId" value="@item.Id" />
+                                        <div class="input-group input-group-sm" style="width: 130px;">
+                                            <input type="number" name="quantity" class="form-control text-center" value="@item.Quantity.ToString("G29")" min="0.1" step="0.1" style="font-weight: 600;" />
+                                            <span class="input-group-text bg-light" style="font-size: 0.8rem;">кг</span>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-check-lg"></i></button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center border rounded-3 bg-light">
+                                        <form asp-action="UpdateQuantity" method="post" class="m-0">
+                                            <input type="hidden" name="cartId" value="@item.Id" />
+                                            <input type="hidden" name="change" value="-1" />
+                                            <button type="submit" class="btn btn-sm px-2 border-0" style="color: var(--primary-green); font-weight: bold;">-</button>
+                                        </form>
+                                        <span class="px-2" style="font-weight: 600; min-width: 30px; text-align: center;">@item.Quantity.ToString("0") шт</span>
+                                        <form asp-action="UpdateQuantity" method="post" class="m-0">
+                                            <input type="hidden" name="cartId" value="@item.Id" />
+                                            <input type="hidden" name="change" value="1" />
+                                            <button type="submit" class="btn btn-sm px-2 border-0" style="color: var(--primary-green); font-weight: bold;">+</button>
+                                        </form>
+                                    </div>
+                                }
+
+                                <span style="font-weight: bold; color: var(--primary-green); font-size: 1.1rem; min-width: 90px; text-align: right;">
+                                    @(item.Quantity * item.Product.Price) грн
+                                </span>
+                                
+                                <form asp-action="RemoveFromCart" method="post" class="m-0">
+                                    <input type="hidden" name="cartId" value="@item.Id" />
+                                    <button type="submit" class="btn btn-link text-danger p-0"><i class="bi bi-trash3" style="font-size: 1.2rem;"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+                    <h4 class="mb-3" style="font-weight: bold;">Разом до сплати</h4>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                        <span class="text-muted">Сума за товари</span>
+                        <span style="font-weight: 600;">@totalSum грн</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span style="font-size: 1.2rem; font-weight: bold;">Загалом</span>
+                        <span style="font-size: 1.2rem; font-weight: bold; color: var(--primary-green);">@totalSum грн</span>
+                    </div>
+                    <a asp-action="Checkout" class="btn btn-success w-100 py-2 rounded-3 text-center" style="background-color: var(--primary-green); border: none; font-weight: 600; display: block; text-decoration: none; color: white;">
+                        Оформити доставку
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
